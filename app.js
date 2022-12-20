@@ -1,14 +1,32 @@
 const express = require("express");
 // using https to parse JSON data
 const https = require("https");
+// using body-parser to handle the post requests
+const bodyParser = require("body-parser");
 
 const app = express();
-// api url
-const url =
-  "https://api.openweathermap.org/data/2.5/weather?q=hamirpur&appid=a15a92f60c1aca7cecdc4545e30a7543&units=metric";
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // content to return on home page request
 app.get("/", function (req, res) {
+  res.sendFile(__dirname + "/index.html");
+});
+
+// handling the post requests
+app.post("/", function (req, res) {
+  // api url
+  const query = req.body.cityName;
+  const apiKey = "a15a92f60c1aca7cecdc4545e30a7543";
+  const unit = "metric";
+
+  const url =
+    "https://api.openweathermap.org/data/2.5/weather?q=" +
+    query +
+    "&appid=" +
+    apiKey +
+    "&units=" +
+    unit;
+
   // function to parse data from API URL
   https.get(url, function (response) {
     console.log(response.statusCode);
@@ -24,7 +42,11 @@ app.get("/", function (req, res) {
       // writing content on res and finally sending the whole data
       res.write("<p>The weather is currently " + description + "</p>");
       res.write(
-        "<h1>The temperature in Hamirpur is: " + temp + " degree Celsius</h1>"
+        "<h1>The temperature in " +
+          query +
+          " is: " +
+          temp +
+          " degree Celsius</h1>"
       );
       res.write("<img src=" + imageUrl + ">");
 
